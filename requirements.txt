@@ -1,0 +1,9 @@
+django
+djangorestframework
+pillow
+djangorestframework-simplejwt
+pytest-django
+python-dotenv
+requests
+drf-spectacular
+
