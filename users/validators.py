@@ -5,4 +5,11 @@ class PhoneNumberValidator(RegexValidator):
     code = "phone invalid"
     message = "phone invalid"
 
+class PostalCodeValidator(RegexValidator):
+    regex = r"^\d{10}$"
+    code = "postal code invalid"
+    message = "postal code invalid"
+
 validate_phone_number = PhoneNumberValidator()
+validate_postal_code = PostalCodeValidator()
+

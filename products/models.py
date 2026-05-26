@@ -9,11 +9,13 @@ class Product(models.Model):
     price = models.CharField(max_length=15)
     #a number between o to 1.
     off_percent = models.DecimalField(max_digits = 3,
-                                      decimal_places = 2)
+                                      decimal_places = 2,
+                                      default = 0)
     category = models.ForeignKey("Category",on_delete=models.SET_NULL)
     #a number between 0 to 5.
     review_avg_point = models.DecimalField(max_digits=3,
-                                           decimal_places=2)
+                                           decimal_places=2,
+                                           default = 0)
     #it value has been placed after saving the product and applying off percent to price.
     final_price = models.CharField(null = True,blank = True) 
     stock_qunatity = models.PositiveIntegerField(default = 0)
@@ -30,6 +32,7 @@ class Product(models.Model):
     country = models.CharField(max_length=16)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+    is_active = models.BooleanField(default=True)
 
 
 
