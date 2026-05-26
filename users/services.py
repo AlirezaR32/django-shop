@@ -1,3 +1,0 @@
-def send_code(code : int,
-              phone_number : str):
-    ...
