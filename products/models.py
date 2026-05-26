@@ -77,6 +77,10 @@ class Image(models.Model):
         super().save(*args,**kwargs)
 
 
-
+class OffCode(models.Model):
+    product = models.ForeignKey("Product",on_delete=models.CASCADE,related_name = "off_codes_for_product")
+    code = models.CharField(max_length=64)
+    off_percent = models.DecimalField(decimal_places=2,max_digits=3) 
+    exipred_at = models.DateTimeField()
 class Review:
     ...
