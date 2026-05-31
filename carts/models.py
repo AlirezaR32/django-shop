@@ -1,5 +1,5 @@
 from django.db import models
-from products.models import Product
+from products.models import Product,OffCode
 from django.conf import settings 
 # Create your models here.
 
@@ -8,6 +8,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
     is_active = models.BooleanField(default = True)
+    off_code = models.ForeignKey(OffCode,on_delete=models.SET_NULL,null = True,blank = True)
 
 
 class CartItem(models.Model):
