@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from .services import get_last_img_number_for_product,get_final_price
 
 # Create your models here.
@@ -19,17 +20,11 @@ class Product(models.Model):
     #it value has been placed after saving the product and applying off percent to price.
     final_price = models.CharField(null = True,blank = True) 
     stock_qunatity = models.PositiveIntegerField(default = 0)
+    is_available = models.BooleanField(default = True)
     brand = models.ForeignKey("Brand",on_delete=models.PROTECT)
     review_count = models.PositiveSmallIntegerField(default = 0)
     view_count = models.PositiveIntegerField(default = 0)
     sell_count = models.PositiveSmallIntegerField(default = 0)
-    #in kg
-    weight = models.DecimalField(max_digits=6,
-                                 decimal_places=3)
-    dimensions = models.CharField(max_length=16)
-    #in days.
-    warranty_period = models.PositiveSmallIntegerField()
-    country = models.CharField(max_length=16)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
     is_active = models.BooleanField(default=True)
@@ -44,17 +39,6 @@ class Product(models.Model):
 
 
 
-
-
-class Attirbute(models.Model):
-    name = models.CharField(max_length=64)
-    is_filter = models.BooleanField(default = False)
-
-
-class ProductAttribute(models.Model):
-    product = models.ForeignKey("Product",related_name="attributes",on_delete=models.CASCADE)
-    Attirbute = models.ForeignKey("Attribute",on_delete=models.PROTECT)
-    value = models.CharField(max_length=64)
 
 
 class Category(models.Model):
@@ -82,5 +66,11 @@ class OffCode(models.Model):
     code = models.CharField(max_length=64)
     off_percent = models.DecimalField(decimal_places=2,max_digits=3) 
     exipred_at = models.DateTimeField()
+
+    @property
+    def is_active(self):
+        #it expired at must be in some time before now.
+        return self.exipred_at > timezone.now()
+
 class Review:
     ...

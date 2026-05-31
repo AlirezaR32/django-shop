@@ -4,14 +4,14 @@ from django.conf import settings
 
 # Create your models here.
 class Order(models.Model):
-    OrderStatus = [( 
-        "PENDING" : "PENDING",
-        "PROCESSING" : "PROCESSING",
-        "COMPLETED" : "COMPLETED" ,
-        "CANCELLED" : "CANCELLED",
-        "FAILED" : "FAILED"
+    OrderStatus = ( 
+        ("PENDING" : "PENDING"),
+       ( "PROCESSING" : "PROCESSING"),
+       ( "COMPLETED" : "COMPLETED" ),
+       ( "CANCELLED" : "CANCELLED"),
+       ( "FAILED" : "FAILED"),
     )
-    ] 
+    
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name="orders",on_delete=models.CASCADE)
     total_amount = models.CharField(max_length=32)
     status = models.CharField(max_length=1,choices =OrderStatus)
