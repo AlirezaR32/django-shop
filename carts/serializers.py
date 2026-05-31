@@ -21,5 +21,5 @@ class CartSerializer(serializers.ModelSerializer):
 class ChangeQuantityForCartItemSerializer(serializers.Serializer):
     quantity = serializers.IntegerField()
 
-class 
-
+class ApplyOffCodeSerializer(serializers.Serializer):
+    code = serializers.CharField()
