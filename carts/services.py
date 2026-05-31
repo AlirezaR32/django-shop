@@ -20,3 +20,7 @@ def is_product_in_cart(product : Product,cart : Cart) -> bool:
     
     return False
 
+
+def is_product_available(product : Product,
+                         quantity : float):
+    return product.stock_qunatity >= quantity 
