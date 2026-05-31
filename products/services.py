@@ -1,5 +1,5 @@
 from .models import Product,Category,Brand
-from rest_framework.request import Request
+from rest_framework.request import HttpRequest 
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from typing import Optional

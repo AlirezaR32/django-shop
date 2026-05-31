@@ -37,6 +37,9 @@ class Product(models.Model):
         super().save(*args,**kwargs)
 
 
+    def __str__(self):
+        return self.title
+
 
 
 
@@ -62,7 +65,6 @@ class Image(models.Model):
 
 
 class OffCode(models.Model):
-    product = models.ForeignKey("Product",on_delete=models.CASCADE,related_name = "off_codes_for_product")
     code = models.CharField(max_length=64)
     off_percent = models.DecimalField(decimal_places=2,max_digits=3) 
     exipred_at = models.DateTimeField()
@@ -71,6 +73,3 @@ class OffCode(models.Model):
     def is_active(self):
         #it expired at must be in some time before now.
         return self.exipred_at > timezone.now()
-
-class Review:
-    ...
