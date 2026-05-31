@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 
 from django.shortcuts import get_object_or_404
 from .models import Product
-from .serializers import ProductSerializer  
+from .serializers import ProductDetailSerializer,ProductListSerializer  
 from .services import ProductFilter
 
 #/products?
@@ -17,7 +17,7 @@ class ProductListView(APIView):
     def get(self,request):
         product_filter = ProductFilter(request)
         products = product_filter.run()
-        serializer = ProductSerializer(products,
+        serializer = ProductListSerializer(products,
                                        many = True)
         
         return Response(serializer.data,
@@ -30,7 +30,7 @@ class ProductDetailView(APIView):
     permission_classes = (AllowAny,)
     def get(self,request,product_id):
         product = get_object_or_404(Product,pk = product_id,is_active = True)
-        Serializer = ProductSerializer(product)
+        Serializer = ProductDetailSerializer(product)
         product.view_count += 1
         return Response(Serializer.data,
                         status = 200)

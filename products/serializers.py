@@ -18,7 +18,7 @@ class ImageSerializer(ModelSerializer):
         fields = ["image","img_number"]
 
 
-class ProductSerializer(ModelSerializer):
+class ProductDetailSerializer(ModelSerializer):
     images = ImageSerializer(many = True)
     category = CategorySerializer()
     brand = BrandSerializer()
@@ -26,4 +26,12 @@ class ProductSerializer(ModelSerializer):
         model = Product
         fields = ["title","short_desc","desc","price","off_percent","category",
                   "review_avg_point","final_price","is_available","brand","created_at","updated_at"]
+
+class ProductListSerializer(ModelSerializer):
+    category = CategorySerializer()
+    brand = BrandSerializer()
+    class Meta:
+        model = Product
+        fields = ["title","short_desc","price","off_percent","category",
+                  "final_price","is_available","brand","created_at","updated_at"]
 
