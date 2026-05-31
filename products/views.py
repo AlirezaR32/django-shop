@@ -3,6 +3,8 @@ from rest_framework.filters import OrderingFilter,SearchFilter
 from rest_framework.pagination import PageNumberPagination  
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+
 from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductSerializer  
@@ -11,6 +13,7 @@ from .services import ProductFilter
 #/products?
 class ProductListView(APIView):
     #in default order.
+    permission_classes = (AllowAny,)
     def get(self,request):
         product_filter = ProductFilter(request)
         products = product_filter.run()
@@ -22,10 +25,11 @@ class ProductListView(APIView):
     
 
 
-
+#products/<product_id>
 class ProductDetailView(APIView):
+    permission_classes = (AllowAny,)
     def get(self,request,product_id):
-        product = get_object_or_404(Product,pk = product_id)
+        product = get_object_or_404(Product,pk = product_id,is_active = True)
         Serializer = ProductSerializer(product)
         product.view_count += 1
         return Response(Serializer.data,
