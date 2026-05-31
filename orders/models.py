@@ -14,7 +14,7 @@ class Order(models.Model):
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name="orders",on_delete=models.CASCADE)
     total_amount = models.CharField(max_length=32)
-    status = models.CharField(max_length=1,choices =OrderStatus)
+    status = models.CharField(max_length=1,choices =OrderStatus,default = "PENDING")
     orderd_at = models.DateTimeField(null = True,blank = True)
 
 
