@@ -1,9 +1,42 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from carts.services import get_or_create_cart_for_user
 from orders.services import get_erros_for_stock_availablity_of_cart_items,get_total_amount_of_cart,create_order_from_cart
 from orders.models import Order
+
+from .serializers import OrderSerializer
+
+#filter by status too.
+#sort by recieve time too.
+class OrderListView(APIView):
+    def get(self,request):
+        orders = Order.objects.filter(user = request.user)
+        if request.query_params.get("status"):
+            orders = orders.filter(status = request.query_params.get("status"))
+
+        serializer = OrderSerializer(orders,many = True)
+        return Response(serializer.data,
+                        status = 200)
+
+class OrderDetailView(APIView):
+    def get(self,request,order_id):
+        order = get_object_or_404(Order,pk = order_id)
+        serilaizer = OrderSerializer(order)
+        return Response(serilaizer.data,
+                        status = 200)
+
+class CancellOrderView(APIView):
+    def patch(self,request,order_id):
+        order = get_object_or_404(Order,pk = order_id) 
+        if order.status == "CANCELLED":
+            return Response({"detail" : "order has been cancelled before"},
+                            status = 200)
+        order.status = "CANCELLED"
+        order.save(update_fields=["status",])
+        return Response({"detail" : "order has been successfully cancelled"},
+                        status = 200)
 
 class CheckOutView(APIView):
     def post(self,request):

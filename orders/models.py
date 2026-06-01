@@ -5,16 +5,15 @@ from django.conf import settings
 # Create your models here.
 class Order(models.Model):
     OrderStatus = ( 
-        ("PENDING" : "PENDING"),
-       ( "PROCESSING" : "PROCESSING"),
-       ( "COMPLETED" : "COMPLETED" ),
-       ( "CANCELLED" : "CANCELLED"),
-       ( "FAILED" : "FAILED"),
+       ( "PROCESSING" : "PROCESSING"), #جاری
+       ( "COMPLETED" : "COMPLETED" ), #تحویل vشده
+       ( "CANCELLED" : "CANCELLED"), #لغوشده 
+       ("RETURNED" : "RETURNED") #مرحوع شده
     )
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name="orders",on_delete=models.CASCADE)
     total_amount = models.CharField(max_length=32)
-    status = models.CharField(max_length=1,choices =OrderStatus,default = "PENDING")
+    status = models.CharField(max_length=1,choices =OrderStatus,default = "PROCESSING")
     orderd_at = models.DateTimeField(null = True,blank = True)
 
 
