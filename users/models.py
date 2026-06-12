@@ -1,11 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin
+
 from .managers import UserManager
 from .validators import validate_postal_code
 
 
-class User(AbstractBaseUser):
-    username = models.CharField(max_length=32)
+class User(AbstractBaseUser,PermissionsMixin):
+    username = models.CharField(max_length=32,unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -14,7 +15,7 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'username'
 
     def __str__(self):
-        return f"User : self.username"
+        return f"User : {self.username}"
 
 class Address(models.Model):
     user = models.ForeignKey("user",related_name="addresses",on_delete=models.CASCADE)  

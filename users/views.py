@@ -22,27 +22,11 @@ class RegisterUserView(APIView):
         if User.objects.filter(username = username).exists():
             return Response({"detail" : "user with this username already registered"},
                             status = 400)
-        User.objects.create_user(username=username,
+        user = User.objects.create_user(username=username,
                                  password = password)
-        return Response({"detail" : "user registered successfully"}
-                        ,status = 200)
-
-class LoginView(APIView):
-    permission_classes = (AllowAny,)
-    def post(self,request):
-        serializer = RegisterSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-
-        user = get_object_or_404(User,username = serializer.validated_data["username"])
-        if not user.check_password(serializer.validated_data["password"]):
-            return Response({"detail" : "the password is incorrect"},
-                            status = 400)
-
-        token = RefreshToken.for_user(user)
-        return Response({"refresh" : token,
-                         "access" : token.access_token},
+ 
+        return Response({"detail" : "user been registerd successfully."},
                          status = 200)
-
 
 #/users/addresses
 class AddressListView(APIView):
@@ -53,7 +37,8 @@ class AddressListView(APIView):
         return Response(serializer.data,
                         status = 200)
     def post(self,request):
-        serializer = AddressSerializer(data = request.data) 
+        serializer = AddressSerializer(data = request.data,
+                                       context = {"user" : request.user}) 
         serializer.is_valid(raise_exception=True)
         if is_user_doesnt_have_any_addresses(request.user):
             serializer.save(user = request.user,
@@ -77,7 +62,7 @@ class AddressDetailView(APIView):
         serializer = AddressSerializer(address,data = request.data,partial = True)
         serializer.is_valid(raise_exception=True)
 
-        if serializer.validated_data["is_primary"] == True:
+        if serializer.validated_data["is_default"] == True:
             set_new_primary_address_for_user(user = request.user,address=address)
         
         serializer.save()

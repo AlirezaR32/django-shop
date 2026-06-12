@@ -1,11 +1,11 @@
 from .models import User,Address
 
 def is_user_doesnt_have_any_addresses(user : User):
-    addresses = user.addresses
+    addresses = user.addresses.all()
     return len(addresses) == 0
 
 def get_default_address_for_user(user : User):
-    for address in user.addresses:
+    for address in user.addresses.all():
         if address.is_default :
             return address
     raise ValueError("user doesnt have any fucking default address")
