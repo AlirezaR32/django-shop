@@ -12,8 +12,8 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey("Cart",related_name="items",on_delete=models.CASCADE)
-    product = models.ForeignKey("Product",on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart,related_name="items",on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
     #it can be float too. (like 1.5 kg)
     quantity = models.DecimalField(max_digits=12,decimal_places=3)
     added_at = models.DateTimeField(auto_now_add = True)

@@ -14,13 +14,10 @@ def get_or_create_cart_for_user(user : User):
 
 
 def is_product_in_cart(product : Product,cart : Cart) -> bool:
-    for item in cart.items:
-        if item.product == product:
-            return True
+    return cart.items.filter(product = product).exists()
     
-    return False
 
 
 def is_product_available(product : Product,
                          quantity : float):
-    return product.stock_qunatity >= quantity 
+    return product.stock_quantity >= quantity 

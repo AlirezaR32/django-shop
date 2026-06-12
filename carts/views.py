@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from .serializers import AddProductToCartSerializer,ChangeQuantityForCartItemSerializer
 from .services import get_or_create_cart_for_user,is_product_in_cart,is_product_available
 from .models import CartItem
-from .serializers import CartSerializer 
+from .serializers import CartSerializer ,ApplyOffCodeSerializer
 
 from products.models import Product,OffCode
 
@@ -21,9 +21,6 @@ class GetCartView(APIView):
 
         return Response(serializer.data,
                         status = 200)
-
-#post cart/items
-class AddProductToCart(APIView):
     def post(self,request):
         serializer = AddProductToCartSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
@@ -38,7 +35,7 @@ class AddProductToCart(APIView):
                             status = 400)
 
         quantity = serializer.validated_data["quantity"]
-        is_available = is_product_available(prodcut = product,quantity = quantity) 
+        is_available = is_product_available(product = product,quantity = quantity) 
 
         if not is_available:
             return Response({"detail" : "product with this quantity isn't availabe in stock"},
@@ -51,10 +48,11 @@ class AddProductToCart(APIView):
         return Response({"detail" : "the item has been added to user's cart"},
                         status = 200)
 
-#patch cart/items/<item_id>
+#cart/item_id
 class ChangeQuantityForCartItemView(APIView):
     def patch(self,request,item_id):
         serializer = ChangeQuantityForCartItemSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
         cart_item = get_object_or_404(CartItem,pk = item_id) 
         if not cart_item.cart.is_active :
             return Response({"detail" : "this cart isn't active to update."},
@@ -82,14 +80,14 @@ class ChangeQuantityForCartItemView(APIView):
 #cart/apply-off-code
 class ApplyOffCodeView(APIView):
     def post(self,request):
-        serializer = CartSerializer(data = request.data)
+        serializer = ApplyOffCodeSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
 
         off_code = get_object_or_404(OffCode,code = serializer.validated_data["code"])
 
         cart = get_or_create_cart_for_user(user = request.user)
 
-        if not cart.off_code.is_active:
+        if not cart.is_active:
             return Response({"detail" : "off code is expired"},
                             status = 200)
 
