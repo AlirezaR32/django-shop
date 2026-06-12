@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from carts.services import get_or_create_cart_for_user
-from orders.services import get_erros_for_stock_availablity_of_cart_items,get_total_amount_of_cart,create_order_from_cart
+from orders.services import get_erros_for_stock_availablity_of_cart_items,get_total_amount_of_cart,create_order_from_cart,is_cart_empty
 from orders.models import Order
 
-from .serializers import OrderSerializer
+from .serializers import OrderDetailSerializer,OrderListSerializer 
 
 #filter by status too.
 #sort by recieve time too.
@@ -16,14 +16,14 @@ class OrderListView(APIView):
         if request.query_params.get("status"):
             orders = orders.filter(status = request.query_params.get("status"))
 
-        serializer = OrderSerializer(orders,many = True)
+        serializer = OrderListSerializer(orders,many = True)
         return Response(serializer.data,
                         status = 200)
 
 class OrderDetailView(APIView):
     def get(self,request,order_id):
         order = get_object_or_404(Order,pk = order_id)
-        serilaizer = OrderSerializer(order)
+        serilaizer = OrderDetailSerializer(order)
         return Response(serilaizer.data,
                         status = 200)
 
@@ -46,14 +46,19 @@ class CheckOutView(APIView):
 
         if stock_validation_errors:
             return Response({"detail" : "stock_quantity_error",
-                             "errors" : stock_validation_errors,}
+                             "errors" : stock_validation_errors},
                             status = 400)
         
-
+        if is_cart_empty(cart):
+            return Response({"detail" : "the cart is empty"},
+                            status = 400) 
         total_amount = get_total_amount_of_cart(cart = cart)
-
+        #after an order placed from an cart.
+        #the old cart must become inactive.
         order = create_order_from_cart(total_amount=total_amount,
                                 cart = cart)
-        
+        cart.is_active = False
+        cart.save(update_fields=["is_active",]) 
+
         return Response({"order_id" : order.pk,
-                         total_amount : total_amount})
+                         "total_amount" : total_amount})
