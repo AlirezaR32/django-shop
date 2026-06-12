@@ -34,7 +34,7 @@ class Product(models.Model):
         return self.stock_quantity > 0
     
     def get_final_price(self,price : int, off_percent : float):
-     final_price = (1 - off_percent) * price 
+     final_price = int((1 - off_percent) * price )
      return final_price
 
 

@@ -24,7 +24,8 @@ class Address(models.Model):
     city = models.CharField(null = True,blank = True,max_length=32)
     state = models.CharField(null = True,blank = True,max_length=32)
     postal_code  = models.CharField(max_length = 10,validators=[validate_postal_code,],null = True,blank = True)
-    is_default = models.BooleanField(default = True)
+    is_default = models.BooleanField(default = False)
+    created_at = models.DateTimeField(auto_now_add = True)
 
 
 

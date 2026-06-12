@@ -4,10 +4,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer,AddressSerializer
 from .models import Address
-from .services import set_new_primary_address_for_user,is_user_doesnt_have_any_addresses
+from .services import set_new_default_address_for_user,is_user_doesnt_have_any_addresses
+from .permissions import IsOwner
 
 User = get_user_model()
 
@@ -25,7 +25,7 @@ class RegisterUserView(APIView):
         user = User.objects.create_user(username=username,
                                  password = password)
  
-        return Response({"detail" : "user been registerd successfully."},
+        return Response({"detail" : "user been registered successfully."},
                          status = 200)
 
 #/users/addresses
@@ -40,6 +40,7 @@ class AddressListView(APIView):
         serializer = AddressSerializer(data = request.data,
                                        context = {"user" : request.user}) 
         serializer.is_valid(raise_exception=True)
+        print(is_user_doesnt_have_any_addresses(request.user))
         if is_user_doesnt_have_any_addresses(request.user):
             serializer.save(user = request.user,
                             is_default = True) 
@@ -51,6 +52,7 @@ class AddressListView(APIView):
                         status = 200)
 
 class AddressDetailView(APIView):
+    permission_classes = [IsOwner,]
     def get(self,request,address_id):
         address = get_object_or_404(Address,pk=address_id)
         serializer = AddressSerializer(address)
@@ -63,8 +65,20 @@ class AddressDetailView(APIView):
         serializer.is_valid(raise_exception=True)
 
         if serializer.validated_data["is_default"] == True:
-            set_new_primary_address_for_user(user = request.user,address=address)
+            set_new_default_address_for_user(user = request.user,address=address)
         
         serializer.save()
         return Response({"detaill" : "address been changed successfully"},
                         status = 200)
+    
+    def delete(self,request,address_id):
+        address = get_object_or_404(Address,pk=address_id)
+        #if this address is not the only address and it's default.
+        #we must set a new default address.
+        is_default = address.is_default
+        address.delete()
+        if is_default:
+            set_new_default_address_for_user(user = request.user)
+        
+        return Response({"detail" : "address been deleted successfully"},
+                        status = 400)

@@ -31,7 +31,7 @@ class OrderDetailView(APIView):
 
 class CancellOrderView(APIView):
     permission_classes = [IsOwner,]
-    def patch(self,request,order_id):
+    def post(self,request,order_id):
         order = get_object_or_404(Order,pk = order_id) 
         if order.status == "CANCELLED":
             return Response({"detail" : "order has been cancelled before"},

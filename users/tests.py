@@ -21,7 +21,6 @@ from .fixtures import (  # noqa: F401  — pytest picks up fixtures automaticall
 # Adjust these URL names to match your urls.py
 # ─────────────────────────────────────────────────────────────────
 REGISTER_URL  = reverse("register")
-LOGIN_URL     = reverse("login") 
 ADDRESS_LIST_URL = reverse("address-list") 
 
 def address_detail_url(address_id):
@@ -39,7 +38,7 @@ class TestRegisterUserView:
         response = api_client.post(REGISTER_URL, valid_register_payload)
 
         assert response.status_code == 200
-        assert response.data["detail"] == "user registered successfully"
+        assert response.data["detail"] == "user been registered successfully."
 
     def test_register_creates_user_in_db(self, api_client, valid_register_payload):
         api_client.post(REGISTER_URL, valid_register_payload)
@@ -59,37 +58,6 @@ class TestRegisterUserView:
         api_client.post(REGISTER_URL, payload)
 
         assert User.objects.filter(username="testuser").count() == 1
-
-# =================================================================
-# LoginView
-# =================================================================
-
-@pytest.mark.django_db
-class TestLoginView:
-
-    def test_login_valid_credentials_returns_200(self, api_client, user):
-        response = api_client.post(LOGIN_URL, {"username": "testuser", "password": "testpass123"})
-
-        assert response.status_code == 200
-
-    def test_login_returns_access_and_refresh_tokens(self, api_client, user):
-        response = api_client.post(LOGIN_URL, {"username": "testuser", "password": "testpass123"})
-
-        assert "access" in response.data
-        assert "refresh" in response.data
-
-    def test_login_wrong_password_returns_400(self, api_client, user):
-        response = api_client.post(LOGIN_URL, {"username": "testuser", "password": "wrongpass"})
-
-        assert response.status_code == 400
-        assert "incorrect" in response.data["detail"]
-
-    def test_login_nonexistent_user_returns_404(self, api_client):
-        response = api_client.post(LOGIN_URL, {"username": "ghost", "password": "nopass"})
-
-        assert response.status_code == 404
-
-
 # =================================================================
 # AddressListView  GET /users/addresses/
 # =================================================================
@@ -125,38 +93,39 @@ class TestAddressListViewGet:
         assert response.data == []
 
 
-# =================================================================
-# AddressListView  POST /users/addresses/
-# =================================================================
+#=================================================================
+#AddressListView  POST /users/addresses/
+#=================================================================
 
-# @pytest.mark.django_db
-# class TestAddressListViewPost:
+@pytest.mark.django_db
+class TestAddressListViewPost:
 
-#     def test_post_creates_address_returns_200(self, auth_client, valid_address_payload):
-#         response = auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
+    def test_post_creates_address_returns_200(self, user , api_client, valid_address_payload):
+        api_client.force_authnicate(user = user)
+        response = user.post(ADDRESS_LIST_URL, valid_address_payload)
 
-#         assert response.status_code == 200
-#         assert "added" in response.data["detail"]
+        assert response.status_code == 200
+        assert "added" in response.data["detail"]
 
-#     def test_post_first_address_is_set_as_default(self, auth_client, user, valid_address_payload):
-#         auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
+    def test_post_first_address_is_set_as_default(self, auth_client, user, valid_address_payload):
+        auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
 
-#         created = Address.objects.get(user=user)
-#         assert created.is_default is True
+        created = Address.objects.get(user=user)
+        assert created.is_default is True
 
-#     def test_post_second_address_is_not_set_as_default(
-#         self, auth_client, user, address, valid_address_payload_2
-#     ):
-#         # `address` fixture already created one address for `user`
-#         auth_client.post(ADDRESS_LIST_URL, valid_address_payload_2)
+    def test_post_second_address_is_not_set_as_default(
+        self, auth_client, user, address, valid_address_payload_2
+    ):
+        # `address` fixture already created one address for `user`
+        auth_client.post(ADDRESS_LIST_URL, valid_address_payload_2)
 
-#         second = Address.objects.get(user=user, full_address="456 Side Ave")
-#         assert second.is_default is False
+        second = Address.objects.get(user=user, full_address="456 Side Ave")
+        assert second.is_default is False
 
-#     def test_post_saves_address_to_db(self, auth_client, user, valid_address_payload):
-#         auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
+    def test_post_saves_address_to_db(self, auth_client, user, valid_address_payload):
+        auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
 
-#         assert Address.objects.filter(user=user).count() == 1
+        assert Address.objects.filter(user=user).count() == 1
 
 
 
