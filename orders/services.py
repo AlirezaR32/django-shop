@@ -1,5 +1,7 @@
 from carts.models import Cart
 from orders.models import Order,OrderItem
+from products.models import Product
+from django.db.models import F
 
 def get_erros_for_stock_availablity_of_cart_items(cart : Cart) -> dict:
     validation_errors = {}
@@ -37,3 +39,16 @@ def create_order_from_cart(cart : Cart,total_amount : int) -> Order:
 
 def is_cart_empty(cart : Cart) -> bool:
     return cart.items.count() == 0
+
+
+def change_stock_quantity_of_order_items_in_db(order : Order,increase : bool = False):
+    if increase:
+        for item in order.items.select_related("product"):
+            Product.objects.filter(pk=item.product_id).update(
+            stock_quantity=F("stock_quantity") + item.quantity
+        )
+    else :
+        for item in order.items.select_related("product"):
+            Product.objects.filter(pk=item.product_id).update(
+            stock_quantity=F("stock_quantity") - item.quantity
+        )
