@@ -56,7 +56,7 @@ class ProductFilter:
         if has_off is not None:
             self.products = self.products.filter(off_percent__gt=0)
         if is_available is not None:
-            self.products = self.products.filter(is_available=True)
+            self.products = self.products.filter(stock_quantity__gt=0)
         if brand_name:
             brand = get_object_or_404(Brand,name = brand_name)
             self.products = self.products.filter(brand = brand)

@@ -30,6 +30,7 @@ class ProductDetailView(APIView):
         product = get_object_or_404(Product,pk = product_id,is_active = True)
         Serializer = ProductDetailSerializer(product)
         product.view_count += 1
+        product.save(update_fields = ["view_count",])
         return Response(Serializer.data,
                         status = 200)
 

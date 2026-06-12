@@ -8,7 +8,7 @@ class Product(models.Model):
     title = models.CharField(max_length=128)
     short_desc = models.CharField(max_length=256,null = True,blank = True)
     desc = models.TextField(null = True,blank = True)
-    price = models.CharField(max_length=15)
+    price = models.PositiveBigIntegerField()
     #a number between o to 1.
     off_percent = models.DecimalField(max_digits = 3,
                                       decimal_places = 2,
@@ -19,7 +19,7 @@ class Product(models.Model):
                                            decimal_places=2,
                                            default = 0)
     #it value has been placed after saving the product and applying off percent to price.
-    final_price = models.CharField(null = True,blank = True) 
+    final_price = models.PositiveBigIntegerField(null = True,blank = True) 
     stock_quantity = models.PositiveIntegerField(default = 0)
     brand = models.ForeignKey("Brand",on_delete=models.PROTECT,null = True,blank = True)
     review_count = models.PositiveSmallIntegerField(default = 0)
@@ -39,7 +39,7 @@ class Product(models.Model):
 
 
     def save(self,*args,**kwargs):
-        self.final_price = str(self.get_final_price(int(self.price),float(self.off_percent)))
+        self.final_price = (self.get_final_price((self.price),float(self.off_percent)))
         super().save(*args,**kwargs)
 
 

@@ -16,7 +16,7 @@ def get_total_amount_of_cart(cart : Cart):
     total_amount = 0 
     for item in cart.items.select_related("product"):
         #the final price is sth like this -> 10000.0
-        total_amount += float(item.product.final_price)
+        total_amount += item.product.final_price
     if cart.off_code and cart.off_code.is_active:
         #i cast the off_percent from Decimal type to float to make the * valid.
         # (*) operation can't be execute between a <float> and a <decimal>.
