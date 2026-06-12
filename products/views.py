@@ -1,6 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.filters import OrderingFilter,SearchFilter 
-from rest_framework.pagination import PageNumberPagination  
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
@@ -9,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductDetailSerializer,ProductListSerializer  
 from .services import ProductFilter
+from .pagination import StandardPagination
 
 #/products?
 class ProductListView(APIView):
@@ -17,12 +16,11 @@ class ProductListView(APIView):
     def get(self,request):
         product_filter = ProductFilter(request)
         products = product_filter.run()
-        serializer = ProductListSerializer(products,
-                                       many = True)
-        
-        return Response(serializer.data,
-                        status = 200)
-    
+        paginator = StandardPagination() 
+        page = paginator.paginate_queryset(products,request)
+        serializer = ProductListSerializer(page , many = True)
+        return paginator.get_paginated_response(serializer.data)
+       
 
 
 #products/<product_id>
