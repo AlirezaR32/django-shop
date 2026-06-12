@@ -7,7 +7,7 @@ from .serializers import AddProductToCartSerializer,ChangeQuantityForCartItemSer
 from .services import get_or_create_cart_for_user,is_product_in_cart,is_product_available
 from .models import CartItem
 from .serializers import CartSerializer ,ApplyOffCodeSerializer
-
+from .permissions import IsOwnerOfCartItem
 from products.models import Product,OffCode
 
 
@@ -49,7 +49,8 @@ class GetCartView(APIView):
                         status = 200)
 
 #cart/item_id
-class ChangeQuantityForCartItemView(APIView):
+class CartItemDetailView(APIView):
+    permission_classes = [IsOwnerOfCartItem,]
     def patch(self,request,item_id):
         serializer = ChangeQuantityForCartItemSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
@@ -71,8 +72,8 @@ class ChangeQuantityForCartItemView(APIView):
         return Response({"detail" : "quantity for this item has been changed"},
                         status = 200)
 
-    def delete(self,request,cartitem_id):
-        cartitem = get_object_or_404(CartItem,pk = cartitem_id)
+    def delete(self,request,item_id):
+        cartitem = get_object_or_404(CartItem,pk = item_id)
         cartitem.delete()
         return Response({"detail" : "cartitem been deleted successfully"},
                         status = 200)
@@ -85,12 +86,11 @@ class ApplyOffCodeView(APIView):
 
         off_code = get_object_or_404(OffCode,code = serializer.validated_data["code"])
 
+        if not off_code.is_active:
+            return Response({"detail" : "off code been expired."},
+                            status = 400)
+
         cart = get_or_create_cart_for_user(user = request.user)
-
-        if not cart.is_active:
-            return Response({"detail" : "off code is expired"},
-                            status = 200)
-
         cart.off_code = off_code
         cart.save(update_fields=["off_code",])
 
