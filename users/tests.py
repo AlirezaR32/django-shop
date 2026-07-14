@@ -1,32 +1,9 @@
 import pytest
 from rest_framework.test import APIClient
-
 from .models import Address,User  
-
-
-#----tests-----
-import pytest
 from django.urls import reverse
-
 from .models import Address,User  # adjust import to your app name
-from .fixtures import (  # noqa: F401  — pytest picks up fixtures automatically
-    api_client, auth_client,
-    user, other_user,
-    valid_register_payload, 
-    valid_address_payload, valid_address_payload_2,
-    address, second_address, other_user_address,
-)
-
-# ─────────────────────────────────────────────────────────────────
-# Adjust these URL names to match your urls.py
-# ─────────────────────────────────────────────────────────────────
-REGISTER_URL  = reverse("register")
-ADDRESS_LIST_URL = reverse("address-list") 
-
-def address_detail_url(address_id):
-    return reverse(ADDRESS_LIST_URL,kwargs = {address_id : address_id}) 
-
-
+from .fixtures import *
 # =================================================================
 # RegisterUserView
 # =================================================================
@@ -100,9 +77,8 @@ class TestAddressListViewGet:
 @pytest.mark.django_db
 class TestAddressListViewPost:
 
-    def test_post_creates_address_returns_200(self, user , api_client, valid_address_payload):
-        api_client.force_authnicate(user = user)
-        response = user.post(ADDRESS_LIST_URL, valid_address_payload)
+    def test_post_creates_address_returns_200(self,auth_client, valid_address_payload):
+        response = auth_client.post(ADDRESS_LIST_URL, valid_address_payload)
 
         assert response.status_code == 200
         assert "added" in response.data["detail"]
@@ -129,56 +105,55 @@ class TestAddressListViewPost:
 
 
 
-# # =================================================================
-# # AddressDetailView  GET /users/addresses/<id>/
-# # =================================================================
-
-# @pytest.mark.django_db
-# class TestAddressDetailViewGet:
-
-#     def test_get_existing_address_returns_200(self, auth_client, address):
-#         response = auth_client.get(address_detail_url(address.id))
-
-#         assert response.status_code == 200
-
-#     def test_get_nonexistent_address_returns_404(self, auth_client):
-#         response = auth_client.get(address_detail_url(99999))
-
-#         assert response.status_code == 404
-
-
 # =================================================================
-# AddressDetailView  PATCH /users/addresses/<id>/
+# AddressDetailView  GET /users/addresses/<id>/
 # =================================================================
 
-# @pytest.mark.django_db
-# class TestAddressDetailViewPatch:
+@pytest.mark.django_db
+class TestAddressDetailViewGet:
 
-#     def test_patch_updates_city_returns_200(self, auth_client, address):
-#         response = auth_client.patch(address_detail_url(address.id), {"city": "Frankfurt"})
+    def test_get_existing_address_returns_200(self, auth_client, address):
+        response = auth_client.get(address_detail_url(address.id))
 
-#         assert response.status_code == 200
+        assert response.status_code == 200
 
-#     def test_patch_persists_changes_to_db(self, auth_client, address):
-#         auth_client.patch(address_detail_url(address.id), {"city": "Frankfurt"})
-#         address.refresh_from_db()
+    def test_get_nonexistent_address_returns_404(self, auth_client):
+        response = auth_client.get(address_detail_url(99999))
 
-#         assert address.city == "Frankfurt"
+        assert response.status_code == 404
 
-#     def test_patch_setting_is_default_true_updates_default_address(
-#         self, auth_client, user, address, second_address
-#     ):
-#         """Promoting second_address to default should demote address."""
-#         client = auth_client(user)
-#         client.patch(address_detail_url(second_address.id), {"is_default": True})
 
-#         second_address.refresh_from_db()
-#         address.refresh_from_db()
+#=================================================================
+#AddressDetailView  PATCH /users/addresses/<id>/
+#=================================================================
 
-#         assert second_address.is_default is True
-#         assert address.is_default is False
+@pytest.mark.django_db
+class TestAddressDetailViewPatch:
 
-#     def test_patch_nonexistent_address_returns_404(self, auth_client):
-#         response = auth_client.patch(address_detail_url(99999), {"city": "Nowhere"})
+    def test_patch_updates_city_returns_200(self, auth_client, address):
+        response = auth_client.patch(address_detail_url(address.id), {"city": "Frankfurt"})
 
-#         assert response.status_code == 404
+        assert response.status_code == 200
+
+    def test_patch_persists_changes_to_db(self, auth_client, address):
+        auth_client.patch(address_detail_url(address.id), {"city": "Frankfurt"})
+        address.refresh_from_db()
+
+        assert address.city == "Frankfurt"
+
+    def test_patch_setting_is_default_true_updates_default_address(
+        self, auth_client , address, second_address
+    ):
+        """Promoting second_address to default should demote address."""
+        auth_client.patch(address_detail_url(second_address.id), {"is_default": True})
+
+        second_address.refresh_from_db()
+        address.refresh_from_db()
+
+        assert second_address.is_default is True
+        assert address.is_default is False
+
+    def test_patch_nonexistent_address_returns_404(self, auth_client):
+        response = auth_client.patch(address_detail_url(99999), {"city": "Nowhere"})
+
+        assert response.status_code == 404

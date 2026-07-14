@@ -25,6 +25,7 @@ class OrderDetailView(APIView):
     permission_classes = [IsOwner,]
     def get(self,request,order_id):
         order = get_object_or_404(Order,pk = order_id)
+        self.check_object_permissions(request,order)
         serilaizer = OrderDetailSerializer(order)
         return Response(serilaizer.data,
                         status = 200)
@@ -33,9 +34,10 @@ class CancellOrderView(APIView):
     permission_classes = [IsOwner,]
     def post(self,request,order_id):
         order = get_object_or_404(Order,pk = order_id) 
-        if order.status == "CANCELLED":
-            return Response({"detail" : "order has been cancelled before"},
-                            status = 200)
+        self.check_object_permissions(request,order)
+        if order.status != "PROCESSING":
+            return Response({"detail" : "can't canell this order"},
+                            status = 400)
         order.status = "CANCELLED"
         order.cancelled_at = timezone.now()
         order.save(update_fields=["status","cancelled_at"])
