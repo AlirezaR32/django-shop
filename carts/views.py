@@ -55,6 +55,7 @@ class CartItemDetailView(APIView):
         serializer = ChangeQuantityForCartItemSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
         cart_item = get_object_or_404(CartItem,pk = item_id) 
+        self.check_object_permissions(request,cart_item)
         if not cart_item.cart.is_active :
             return Response({"detail" : "this cart isn't active to update."},
                             status = 400)
@@ -74,6 +75,7 @@ class CartItemDetailView(APIView):
 
     def delete(self,request,item_id):
         cartitem = get_object_or_404(CartItem,pk = item_id)
+        self.check_object_permissions(request,cartitem)
         cartitem.delete()
         return Response({"detail" : "cartitem been deleted successfully"},
                         status = 200)

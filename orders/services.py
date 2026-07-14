@@ -8,7 +8,7 @@ def get_erros_for_stock_availablity_of_cart_items(cart : Cart) -> dict:
 
     for item in cart.items.select_related("product"):
         if item.quantity > item.product.stock_quantity:
-            validation_errors[f"item.product"] = {"user_quantity" : item.quantity,
+            validation_errors[f"{item.product}"] = {"user_quantity" : item.quantity,
                                                   "stock_quantity" : item.product.stock_quantity} 
 
     return validation_errors

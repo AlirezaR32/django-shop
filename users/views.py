@@ -64,7 +64,7 @@ class AddressDetailView(APIView):
         serializer = AddressSerializer(address,data = request.data,partial = True)
         serializer.is_valid(raise_exception=True)
 
-        if serializer.validated_data["is_default"] == True:
+        if serializer.validated_data.get("is_default") == True:
             set_new_default_address_for_user(user = request.user,address=address)
         
         serializer.save()
