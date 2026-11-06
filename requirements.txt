@@ -6,4 +6,5 @@ pytest-django
 python-dotenv
 requests
 drf-spectacular
+django-cors-headers
 

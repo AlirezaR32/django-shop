@@ -17,13 +17,11 @@ def get_erros_for_stock_availablity_of_cart_items(cart : Cart) -> dict:
 def get_total_amount_of_cart(cart : Cart):
     total_amount = 0 
     for item in cart.items.select_related("product"):
-        #the final price is sth like this -> 10000.0
-        total_amount += item.product.final_price
+        # multiply by quantity (quantity can be Decimal)
+        total_amount += float(item.product.final_price) * float(item.quantity)
     if cart.off_code and cart.off_code.is_active:
-        #i cast the off_percent from Decimal type to float to make the * valid.
-        # (*) operation can't be execute between a <float> and a <decimal>.
         total_amount -= float(cart.off_code.off_percent) * total_amount 
-    return total_amount
+    return int(total_amount)
 
 
 def create_order_from_cart(cart : Cart,total_amount : int) -> Order:

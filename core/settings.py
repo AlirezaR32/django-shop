@@ -9,9 +9,14 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-from .local_settings import *
 from pathlib import Path
 from datetime import timedelta
+try:
+    from .local_settings import *
+except ImportError:
+    SECRET_KEY = "django-insecure-dev-key-change-me"
+    DEBUG = True
+    ALLOWED_HOSTS = ["*"]
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     "users",
     "products",
     "carts",
@@ -38,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -133,5 +140,16 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-MEDIA_URL =  "localhost:8000/media/"
-MEDIA_ROOT = 'media/'
+MEDIA_URL =  "/media/"
+MEDIA_ROOT = BASE_DIR / 'media'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow preview host embedding
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+# Append frontend dist handling if needed
+ALLOWED_HOSTS = ["*"]
